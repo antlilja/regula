@@ -2,7 +2,7 @@
 #include <tuple>
 #include <cstdint>
 
-namespace pm {
+namespace regula {
     template <std::size_t N, typename... Types>
     using get_Nth_type_of_types =
         typename std::tuple_element<N, std::tuple<Types...>>::type;
@@ -17,4 +17,4 @@ namespace pm {
     template <template <typename, std::size_t> typename T, typename TA,
               std::size_t NA, typename TB, std::size_t NB>
     constexpr bool is_template<T<TA, NA>, T<TB, NB>>{true};
-} // namespace pm
+} // namespace regula

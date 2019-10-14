@@ -4,7 +4,7 @@
 #include <array>
 #include <cstdint>
 
-namespace pm {
+namespace regula {
     // any_of
     template <typename T, std::size_t N>
     class any_of {
@@ -29,4 +29,4 @@ namespace pm {
 
     // any
     class any {};
-} // namespace pm
+} // namespace regula

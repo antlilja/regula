@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace pm {
+namespace regula {
     template <typename Predicate, typename... Pattern>
     class pattern {
         static constexpr std::size_t pattern_size = sizeof...(Pattern);
@@ -83,4 +83,4 @@ namespace pm {
         Predicate m_pred;
         std::tuple<Pattern...> m_pattern;
     };
-} // namespace pm
+} // namespace regula
