@@ -2,7 +2,6 @@
 #include "regula/type_traits.hpp"
 
 #include <array>
-#include <cstdint>
 
 namespace regula {
     // any_of
@@ -29,4 +28,16 @@ namespace regula {
 
     // any
     class any {};
+
+    // optional_rep
+    template <typename Pattern>
+    class optional_rep {
+    public:
+        constexpr optional_rep(Pattern pattern) : m_pattern(pattern) {}
+
+        constexpr Pattern get_pattern() const { return m_pattern; }
+
+    private:
+        Pattern m_pattern;
+    };
 } // namespace regula
