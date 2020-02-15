@@ -39,16 +39,20 @@ namespace regula {
                     return pred(x, *current);
                 };
 
+                ++it;
+
                 if (std::find_if(current_p.begin(), current_p.end(), if_pred) ==
                     current_p.end()) {
                     return false;
                 }
             }
             // Nested patterns are used for repetition
-            else if constexpr (is_pattern) {
-                // Pattern has to be found at least once
-
-                if (!current_p.template match<0>(it, end, pred)) return false;
+            else if constexpr (is_pattern || is_op_rep) {
+                // Pattern has to be found at least once in non optional pattern
+                if constexpr (is_pattern) {
+                    if (!current_p.template match<0>(it, end, pred))
+                        return false;
+                }
 
                 auto stored_it = it;
                 for (;;) {
@@ -57,20 +61,9 @@ namespace regula {
                 }
                 it = stored_it;
             }
-            // Optional nested patterns that never has to be found
-            else if constexpr (is_op_rep) {
-                const auto p = current_p.get_pattern();
-
-                auto stored_it = it;
-                for (;;) {
-                    stored_it = it;
-                    if (!p.template match<0>(it, end, pred)) break;
-                }
-                it = stored_it;
-            }
             // If not any, check if current equal pattern
             else if constexpr (!is_any) {
-                if (!pred(current_p, *current)) return false;
+                if (!pred(current_p, *(it++))) return false;
             }
 
             // This looks weird but clang (and maybe others) crash
@@ -78,7 +71,7 @@ namespace regula {
 
             // If there is more of pattern search next part
             if constexpr (N < (pattern_size - 1)) {
-                return match<N + 1>(++it, end, pred);
+                return match<N + 1>(it, end, pred);
             }
             else {
                 return true;
@@ -93,10 +86,10 @@ namespace regula {
         std::vector<range<It>> get_matches(It begin, It end,
                                            Predicate pred) const {
             std::vector<range<It>> matches;
-            for (auto it = begin; it < end; ++it) {
+            for (auto it = begin; it < end;) {
                 auto match_it = it;
                 if (match<0>(it, end, pred)) {
-                    matches.emplace_back(match_it, it + 1);
+                    matches.emplace_back(match_it, it);
                 }
             }
             return matches;
@@ -105,7 +98,7 @@ namespace regula {
         // Returns true if range contains pattern
         template <typename It, typename Predicate>
         constexpr bool contains_match(It begin, It end, Predicate pred) const {
-            for (auto it = begin; it != end; ++it) {
+            for (auto it = begin; it != end;) {
                 if (match<0>(it, end, pred)) return true;
             }
             return false;

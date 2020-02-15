@@ -35,7 +35,10 @@ namespace regula {
     public:
         constexpr optional_rep(Pattern pattern) : m_pattern(pattern) {}
 
-        constexpr Pattern get_pattern() const { return m_pattern; }
+        template <std::size_t N, typename It, typename Predicate>
+        constexpr bool match(It& begin, It end, Predicate pred) const {
+            return m_pattern.template match<N>(begin, end, pred);
+        }
 
     private:
         Pattern m_pattern;
