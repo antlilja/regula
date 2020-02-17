@@ -74,10 +74,7 @@ namespace regula {
                 if (!pred(current_p, *current)) return end;
             }
 
-            // This looks weird but clang (and maybe others) crash
-            // if it is not written in this way \/
-
-            // If there is more of pattern search next part
+            // If there is more of pattern then search next part
             if constexpr (N < (pattern_size - 1)) {
                 return match<N + 1>(it + 1, end, pred);
             }
@@ -95,9 +92,8 @@ namespace regula {
         get_matches(It begin, It end, Predicate pred = default_pred) const {
             std::vector<range<It>> matches;
             for (auto it = begin; it < end; ++it) {
-                auto match_it = it;
                 if (const auto last = match<0>(it, end, pred); last != end) {
-                    matches.emplace_back(match_it, last);
+                    matches.emplace_back(it, last);
                     it = last;
                 }
             }
