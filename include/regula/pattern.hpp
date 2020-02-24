@@ -1,13 +1,14 @@
 #pragma once
-#include "regula/modifiers.hpp"
 #include "regula/range.hpp"
+#include "regula/modifiers.hpp"
 
 #include <vector>
+#include <optional>
 
 namespace regula {
     template <typename... Pattern>
     class pattern {
-        static constexpr std::size_t pattern_size = sizeof...(Pattern);
+        static constexpr std::size_t m_pattern_size = sizeof...(Pattern);
 
         template <std::size_t N>
         using get_Nth_type = get_Nth_type_of_types<N, Pattern...>;
@@ -26,7 +27,7 @@ namespace regula {
             constexpr bool is_op_rep = is_template<type_n, optional_rep<int>>;
 
             constexpr auto N_DEBUG = N;
-            constexpr auto pattern_size_DEBUG = pattern_size;
+            constexpr auto pattern_size_DEBUG = m_pattern_size;
             const auto distance_from_end_DEBUG = std::distance(it, end);
 
             // The current iterator of the container we are searching
@@ -75,7 +76,7 @@ namespace regula {
             }
 
             // If there is more of pattern then search next part
-            if constexpr (N < (pattern_size - 1)) {
+            if constexpr (N < (m_pattern_size - 1)) {
                 return match<N + 1>(++it, end, pred);
             }
             else {
@@ -85,6 +86,8 @@ namespace regula {
 
     public:
         constexpr pattern(Pattern... pattern) : m_pattern({pattern...}) {}
+
+        constexpr std::size_t get_size() const { return m_pattern_size; }
 
         // Returns span of all matches
         template <typename It, typename Predicate = decltype(default_pred)>
@@ -102,9 +105,9 @@ namespace regula {
 
         // Returns number of matches
         template <typename It, typename Predicate = decltype(default_pred)>
-        std::size_t count_matches(It begin, It end,
-                                  Predicate pred = default_pred) const {
-            std::size_t count;
+        constexpr std::size_t
+        count_matches(It begin, It end, Predicate pred = default_pred) const {
+            std::size_t count = 0;
             for (auto it = begin; it < end; ++it) {
                 if (const auto last = match<0>(it, end, pred); last != end) {
                     ++count;
@@ -122,6 +125,18 @@ namespace regula {
                 if (match<0>(it, end, pred) != end) return true;
             }
             return false;
+        }
+
+        // Returns first match if it starts from begin iterator
+        template <typename It, typename Predicate = decltype(default_pred)>
+        constexpr std::optional<range<It>>
+        get_first_only_from_begin(It begin, It end,
+                                  Predicate pred = default_pred) const {
+            if (const auto last = match<0>(begin, end, pred); last != end) {
+                return {begin, last + 1};
+            }
+
+            return std::nullopt;
         }
 
     private:
