@@ -76,7 +76,7 @@ namespace regula {
 
             // If there is more of pattern then search next part
             if constexpr (N < (pattern_size - 1)) {
-                return match<N + 1>(it + 1, end, pred);
+                return match<N + 1>(++it, end, pred);
             }
             else {
                 return it;
@@ -93,7 +93,7 @@ namespace regula {
             std::vector<range<It>> matches;
             for (auto it = begin; it < end; ++it) {
                 if (const auto last = match<0>(it, end, pred); last != end) {
-                    matches.emplace_back(it, last);
+                    matches.emplace_back(it, last + 1);
                     it = last;
                 }
             }
